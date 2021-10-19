@@ -93,7 +93,8 @@ namespace Project1
                     if (rotation != 0)
                     {
 
-                        spriteBatch.Draw(board, destRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, new Vector2(sourceRect.Width / 2, sourceRect.Height / 2), SpriteEffects.None, 0);
+                        Vector2 origin = new Vector2(destRect.Width/2, destRect.Height / 2); // todo: update
+                        spriteBatch.Draw(board, destRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, origin, SpriteEffects.None, 0);
 
                     }
                     else
