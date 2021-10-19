@@ -10,6 +10,7 @@ namespace Project1
         Rectangle destRect;
         bool shown = false;
         Rectangle sourceRect;
+        bool hov = false;
 
         public Field()
         {
@@ -17,6 +18,7 @@ namespace Project1
             this.shown = false;
 
         }
+        
         public Field(Rectangle destRect, bool shown, bool available)
         {
             this.destRect = destRect;
@@ -34,7 +36,16 @@ namespace Project1
         {
             this.destRect = destRect;
         }
+        public void hover()
+        {
+            this.hov = true;
+            
+        }
+        public void unhover()
+        {
+            this.hov = false;
 
+        }
         public Rectangle getBoardRect()
         {
             return destRect;
@@ -45,16 +56,27 @@ namespace Project1
         {
                 shown = false;
         }
+        public Rectangle getSourceRect()
+        {
+            return sourceRect;
+        }
+
+        public void setSourceRect(Rectangle source)
+        {
+            sourceRect= source;
+        }
+
+
         public bool isShown()
         {
-                return false;
+                return shown;
         }
         internal void Draw(SpriteBatch spriteBatch, Texture2D board, Texture2D questionmark)
         {
             if (shown)
                 spriteBatch.Draw(board, destRect, sourceRect,Color.White);
                     else
-                        spriteBatch.Draw(questionmark, destRect, Color.White);
+             spriteBatch.Draw(questionmark, destRect, Color.White);
             //spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
         }
     }
@@ -110,9 +132,24 @@ namespace Project1
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
 
 
+            MouseState mouse = Mouse.GetState();
+            if (mouse.LeftButton == ButtonState.Pressed)
+            {
+
+                click(mouse.X, mouse.Y);
+                hover(mouse.X, mouse.Y);
+                //if (mouseClickLocked == false)
+                //{
+                //    click(mouse.X, mouse.Y);
+                //}
+                //mouseClickLocked = true;
+            }
+            //else
+            //{
+            //    mouseClickLocked = false;
+            //}
 
 
             // TODO: Add your update logic here
@@ -134,6 +171,66 @@ namespace Project1
             _spriteBatch.End();
             base.Draw(gameTime);
         }
+
+
+        void click(int x, int y)
+        {
+
+            if (selectedRectangle.getBoardRect().Contains(x, y))
+            {
+                selectedRectangle.Hide();
+                return;
+            }
+
+
+            foreach (var field in menuFields)
+            {
+                if (field.getBoardRect().Contains(x, y))
+                {
+                    selectedRectangle.setSourceRect(field.getSourceRect());
+                    selectedRectangle.Show();
+                    return;
+                }
+            }
+
+
+            foreach (var field in boardFields)
+            {
+                if (field.getBoardRect().Contains(x, y))
+                {
+                    if (selectedRectangle.isShown())
+                    {
+                        field.setSourceRect(selectedRectangle.getSourceRect());
+                        field.Show();
+                    }
+                    else
+                    {
+                        field.Hide();
+                    }
+
+                    return;
+                }
+            }
+
+        }
+
+        void hover(int x, int y)
+        {
+
+            foreach (var field in menuFields)
+            {
+                if (field.getBoardRect().Contains(x, y))
+                {
+                    field.hover();
+                   
+                }
+                else
+                {
+                    field.unhover();
+                }
+            }
+        }
+
 
 
         private void drawCardCollection(List<Field> fields)
