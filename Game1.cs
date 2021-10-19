@@ -90,16 +90,18 @@ namespace Project1
                     spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
                 else
                 {
+                    
                     if (rotation != 0)
                     {
-
-                        Vector2 origin = new Vector2(destRect.Width / 2, destRect.Height / 2); // todo: update
-                        spriteBatch.Draw(board, destRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, origin, SpriteEffects.None, 0);
-
+                        Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
+                        Rectangle tempDestRect = destRect;
+                        tempDestRect.Offset(destRect.Width/2f, destRect.Height / 2f);
+                        spriteBatch.Draw(board, tempDestRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, origin, SpriteEffects.None, 0);
                     }
                     else
+                    {
                         spriteBatch.Draw(board, destRect, sourceRect, Color.White);
-
+                    }
                 }
             else
                 spriteBatch.Draw(questionmark, destRect, Color.White);
@@ -116,6 +118,11 @@ namespace Project1
             rotation += 90;
             if (rotation >= 360)
                 rotation = 0;
+        }
+
+        internal void clearRotation()
+        {
+            rotation = 0;
         }
     }
 
@@ -229,6 +236,7 @@ namespace Project1
                     }
                     else
                     {
+                        field.clearRotation();
                         field.Hide();
                     }
                     //return;
@@ -298,7 +306,7 @@ namespace Project1
                 }
             }
 
-            cardSize = 60;
+            cardSize = 50;
             cols = 10;
             rows = 10;
             for (int r = 0; r < rows; r++)
