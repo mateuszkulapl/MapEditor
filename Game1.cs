@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace Project1
@@ -11,7 +12,8 @@ namespace Project1
         bool shown = false;
         Rectangle sourceRect;
         bool hov = false;
-
+        int rotation = 0;
+        bool pClicked = false;
         public Field()
         {
             this.destRect = new Rectangle(0,0,0,0);
@@ -40,6 +42,16 @@ namespace Project1
         {
             this.hov = true;
             
+        }
+        public void click()
+        {
+            this.pClicked = true;
+
+        }
+        public void unclick()
+        {
+            this.pClicked = false;
+
         }
         public void unhover()
         {
@@ -74,10 +86,35 @@ namespace Project1
         internal void Draw(SpriteBatch spriteBatch, Texture2D board, Texture2D questionmark)
         {
             if (shown)
-                spriteBatch.Draw(board, destRect, sourceRect,Color.White);
+                if(hov)
+                    spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
+                else
+                {
+                    if (rotation != 0)
+                    {
+
+                        spriteBatch.Draw(board, destRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, new Vector2(sourceRect.Width / 2, sourceRect.Height / 2), SpriteEffects.None, 0);
+
+                    }
                     else
+                        spriteBatch.Draw(board, destRect, sourceRect, Color.White);
+
+                }
+            else
              spriteBatch.Draw(questionmark, destRect, Color.White);
-            //spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
+
+        }
+
+        public bool prevClicked()
+        {
+            return pClicked;
+        }
+
+        public void rotate()
+        {
+            rotation += 90;
+            if (rotation >= 360)
+                rotation = 0;
         }
     }
 
@@ -135,21 +172,22 @@ namespace Project1
 
 
             MouseState mouse = Mouse.GetState();
+            hover(mouse.X, mouse.Y);
             if (mouse.LeftButton == ButtonState.Pressed)
             {
 
                 click(mouse.X, mouse.Y);
-                hover(mouse.X, mouse.Y);
+                
                 //if (mouseClickLocked == false)
                 //{
                 //    click(mouse.X, mouse.Y);
                 //}
-                //mouseClickLocked = true;
+                mouseClickLocked = true;
             }
-            //else
-            //{
-            //    mouseClickLocked = false;
-            //}
+            else
+            {
+                mouseClickLocked = false;
+            }
 
 
             // TODO: Add your update logic here
@@ -202,6 +240,11 @@ namespace Project1
                     {
                         field.setSourceRect(selectedRectangle.getSourceRect());
                         field.Show();
+                        if (field.prevClicked() == true && mouseClickLocked == false)
+                            field.rotate();
+                        field.click();
+
+
                     }
                     else
                     {
@@ -210,6 +253,10 @@ namespace Project1
 
                     return;
                 }
+                else
+                { field.unclick();
+                }
+
             }
 
         }
