@@ -14,6 +14,8 @@ namespace Project1
         bool hov = false;
         int rotation = 0;
         bool pClicked = false;
+        Vector2 rotationVector = new Vector2();
+
         public Field()
         {
             this.destRect = new Rectangle(0, 0, 0, 0);
@@ -32,6 +34,7 @@ namespace Project1
             this.sourceRect = sourceRect;
             this.destRect = destRect;
             this.shown = true;
+            this.rotationVector = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
 
         }
         public Field(Rectangle destRect)
@@ -41,7 +44,10 @@ namespace Project1
         public void hover()
         {
             this.hov = true;
-
+        }
+        public void unhover()
+        {
+            this.hov = false;
         }
         public void click()
         {
@@ -51,19 +57,20 @@ namespace Project1
         public void unclick()
         {
             this.pClicked = false;
-
         }
-        public void unhover()
+        public bool clickedPreviously()
         {
-            this.hov = false;
-
+            return pClicked;
         }
         public Rectangle getBoardRect()
         {
             return destRect;
         }
+
         public void Show()
-        { shown = true; }
+        {
+            shown = true;
+        }
         public void Hide()
         {
             shown = false;
@@ -76,42 +83,43 @@ namespace Project1
         public void setSourceRect(Rectangle source)
         {
             sourceRect = source;
+            this.rotationVector = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
         }
-
-
         public bool isShown()
         {
             return shown;
         }
+        /// <summary>
+        /// Draw card
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="board">board with all numbers</param>
+        /// <param name="questionmark"></param>
         internal void Draw(SpriteBatch spriteBatch, Texture2D board, Texture2D questionmark)
         {
+            Color colorMask = Color.White;
+            if (hov)
+                colorMask = new Color(255, 255, 255, 0.1f);
+
             if (shown)
-                if (hov)
-                    spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
+            {
+                if (rotation != 0)
+                {
+                    Rectangle tempDestRect = destRect;
+                    tempDestRect.Offset(this.rotationVector.X / 2f, this.rotationVector.Y / 2f);
+                    spriteBatch.Draw(board, tempDestRect, sourceRect, colorMask, rotation * MathHelper.Pi / 180, this.rotationVector, SpriteEffects.None, 0);
+                }
                 else
                 {
-                    
-                    if (rotation != 0)
-                    {
-                        Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
-                        Rectangle tempDestRect = destRect;
-                        tempDestRect.Offset(destRect.Width/2f, destRect.Height / 2f);
-                        spriteBatch.Draw(board, tempDestRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, origin, SpriteEffects.None, 0);
-                    }
-                    else
-                    {
-                        spriteBatch.Draw(board, destRect, sourceRect, Color.White);
-                    }
+                    spriteBatch.Draw(board, destRect, sourceRect, Color.White);
                 }
+            }
             else
-                spriteBatch.Draw(questionmark, destRect, Color.White);
+                spriteBatch.Draw(questionmark, destRect, colorMask);
 
         }
 
-        public bool prevClicked()
-        {
-            return pClicked;
-        }
+
 
         public void rotate()
         {
@@ -133,15 +141,12 @@ namespace Project1
         Texture2D background;
         Texture2D board;
         Texture2D questionmark;
-        int cardSize = 0;
         List<Field> menuFields = new List<Field>();
         List<Field> boardFields = new List<Field>();
         Field selectedRectangle = new Field();
-
-
-        int? currentIndex = null;
-
         bool mouseClickLocked = false;
+
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -178,7 +183,6 @@ namespace Project1
             hover(mouse.X, mouse.Y);
             if (mouse.LeftButton == ButtonState.Pressed)
             {
-
                 click(mouse.X, mouse.Y);
                 mouseClickLocked = true;
             }
@@ -230,7 +234,8 @@ namespace Project1
                     {
                         field.setSourceRect(selectedRectangle.getSourceRect());
                         field.Show();
-                        if (field.prevClicked() == true && mouseClickLocked == false)
+
+                        if (field.clickedPreviously() == true && mouseClickLocked == false)//todo: fix double click
                             field.rotate();
                         field.click();
                     }
@@ -239,7 +244,6 @@ namespace Project1
                         field.clearRotation();
                         field.Hide();
                     }
-                    //return;
                 }
                 else
                 {
@@ -252,29 +256,19 @@ namespace Project1
 
         void hover(int x, int y)
         {
-
             foreach (var field in menuFields)
             {
                 if (field.getBoardRect().Contains(x, y))
-                {
                     field.hover();
-
-                }
                 else
-                {
                     field.unhover();
-                }
             }
         }
-
-
 
         private void drawCardCollection(List<Field> fields)
         {
             foreach (var field in fields)
-            {
                 field.Draw(_spriteBatch, board, questionmark);
-            }
         }
 
         private void fillFields()
@@ -287,7 +281,7 @@ namespace Project1
             int width = board.Width / cols;
             int large = 20;
 
-            //dane lewego menu
+            //toolbox
             int cardSize = 60;
             selectedRectangle = new Field(new Rectangle(gap, gap, cardSize + large, cardSize + large));
 
@@ -295,17 +289,15 @@ namespace Project1
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    //Rectangle currentRect = new Rectangle((c + 1) * gap + (c * bor), (r + 1) * gap + (r * height), width, height);
-
                     Rectangle sourceRect = new Rectangle(c * width, r * height, width, height);
 
                     Rectangle destRect = new Rectangle(gap, cardSize + large + 2 * gap + (r * cols + c) * cardSize, cardSize, cardSize);
                     Field field = new Field(sourceRect, destRect, true);
                     menuFields.Add(field);
-
                 }
             }
 
+            //board
             cardSize = 50;
             cols = 10;
             rows = 10;
