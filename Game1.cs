@@ -16,11 +16,11 @@ namespace Project1
         bool pClicked = false;
         public Field()
         {
-            this.destRect = new Rectangle(0,0,0,0);
+            this.destRect = new Rectangle(0, 0, 0, 0);
             this.shown = false;
 
         }
-        
+
         public Field(Rectangle destRect, bool shown, bool available)
         {
             this.destRect = destRect;
@@ -41,7 +41,7 @@ namespace Project1
         public void hover()
         {
             this.hov = true;
-            
+
         }
         public void click()
         {
@@ -66,7 +66,7 @@ namespace Project1
         { shown = true; }
         public void Hide()
         {
-                shown = false;
+            shown = false;
         }
         public Rectangle getSourceRect()
         {
@@ -75,25 +75,25 @@ namespace Project1
 
         public void setSourceRect(Rectangle source)
         {
-            sourceRect= source;
+            sourceRect = source;
         }
 
 
         public bool isShown()
         {
-                return shown;
+            return shown;
         }
         internal void Draw(SpriteBatch spriteBatch, Texture2D board, Texture2D questionmark)
         {
             if (shown)
-                if(hov)
+                if (hov)
                     spriteBatch.Draw(board, destRect, sourceRect, new Color(255, 255, 255, 0.1f));
                 else
                 {
                     if (rotation != 0)
                     {
 
-                        Vector2 origin = new Vector2(destRect.Width/2, destRect.Height / 2); // todo: update
+                        Vector2 origin = new Vector2(destRect.Width / 2, destRect.Height / 2); // todo: update
                         spriteBatch.Draw(board, destRect, sourceRect, Color.White, rotation * MathHelper.Pi / 180, origin, SpriteEffects.None, 0);
 
                     }
@@ -102,7 +102,7 @@ namespace Project1
 
                 }
             else
-             spriteBatch.Draw(questionmark, destRect, Color.White);
+                spriteBatch.Draw(questionmark, destRect, Color.White);
 
         }
 
@@ -118,9 +118,6 @@ namespace Project1
                 rotation = 0;
         }
     }
-
-
-
 
     public class Game1 : Game
     {
@@ -149,8 +146,6 @@ namespace Project1
 
         protected override void Initialize()
         {
-            
-
             base.Initialize();
         }
 
@@ -178,28 +173,17 @@ namespace Project1
             {
 
                 click(mouse.X, mouse.Y);
-                
-                //if (mouseClickLocked == false)
-                //{
-                //    click(mouse.X, mouse.Y);
-                //}
                 mouseClickLocked = true;
             }
             else
             {
                 mouseClickLocked = false;
             }
-
-
-            // TODO: Add your update logic here
-
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            
-
             _spriteBatch.Begin();
             _spriteBatch.Draw(background, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
 
@@ -221,7 +205,6 @@ namespace Project1
                 return;
             }
 
-
             foreach (var field in menuFields)
             {
                 if (field.getBoardRect().Contains(x, y))
@@ -231,7 +214,6 @@ namespace Project1
                     return;
                 }
             }
-
 
             foreach (var field in boardFields)
             {
@@ -244,18 +226,16 @@ namespace Project1
                         if (field.prevClicked() == true && mouseClickLocked == false)
                             field.rotate();
                         field.click();
-
-
                     }
                     else
                     {
                         field.Hide();
                     }
-
-                    return;
+                    //return;
                 }
                 else
-                { field.unclick();
+                {
+                    field.unclick();
                 }
 
             }
@@ -270,7 +250,7 @@ namespace Project1
                 if (field.getBoardRect().Contains(x, y))
                 {
                     field.hover();
-                   
+
                 }
                 else
                 {
@@ -300,9 +280,9 @@ namespace Project1
             int large = 20;
 
             //dane lewego menu
-            cardSize = 60;
+            int cardSize = 60;
             selectedRectangle = new Field(new Rectangle(gap, gap, cardSize + large, cardSize + large));
-            
+
             for (int r = 0; r < availableRows; r++)
             {
                 for (int c = 0; c < cols; c++)
@@ -311,14 +291,12 @@ namespace Project1
 
                     Rectangle sourceRect = new Rectangle(c * width, r * height, width, height);
 
-                    Rectangle destRect = new Rectangle(gap, cardSize + large+2*gap + (r * cols + c) * cardSize, cardSize, cardSize);
+                    Rectangle destRect = new Rectangle(gap, cardSize + large + 2 * gap + (r * cols + c) * cardSize, cardSize, cardSize);
                     Field field = new Field(sourceRect, destRect, true);
                     menuFields.Add(field);
 
                 }
             }
-
-
 
             cardSize = 60;
             cols = 10;
@@ -332,9 +310,6 @@ namespace Project1
                     boardFields.Add(field);
                 }
             }
-
-           
-
         }
     }
 }
